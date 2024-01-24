@@ -56,7 +56,53 @@ def minimax(node: MinimaxNode, depth: int, max_role: str, heuristic_fn):
     :rtype: int
     """
     # Your code here!
-    return 0
+    # return 0
+
+    if depth == 0 or node.state.is_terminal:
+        # Base case: evaluate the state using the heuristic function
+        node.value = heuristic_fn(node.state, max_role)
+        return node.value
+    
+    if node.state.turn == max_role:
+        # Maximizing player
+        max_eval = float('-inf')
+        for move in node.state.get_legal_moves():
+            # Create a successor node
+            successor_state = State(node.state.num_cols, node.state.num_rows, node.state.turn,
+                                    deepcopy(node.state.peek_next_board(move)))
+            successor_node = MinimaxNode(successor_state)
+
+            # Recursively call minimax on the successor
+            eval = minimax(successor_node, depth - 1, max_role, heuristic_fn)
+            max_eval = max(max_eval, eval)
+
+            # Store successor and its value
+            node.successors[move] = successor_node
+
+        # Assign the maximum value found to the current node
+        node.value = max_eval
+        return max_eval
+    else:
+        # Minimizing player
+        min_eval = float('inf')
+        for move in node.state.get_legal_moves():
+            # Create a successor node
+            successor_state = State(node.state.num_cols, node.state.num_rows, node.state.turn,
+                                    deepcopy(node.state.peek_next_board(move)))
+            successor_node = MinimaxNode(successor_state)
+
+            # Recursively call minimax on the successor
+            eval = minimax(successor_node, depth - 1, max_role, heuristic_fn)
+            min_eval = min(min_eval, eval)
+
+            # Store successor and its value
+            node.successors[move] = successor_node
+
+        # Assign the minimum value found to the current node
+        node.value = min_eval
+        return min_eval
+    
+    
 
 
 
