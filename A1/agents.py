@@ -219,12 +219,9 @@ def my_heuristic(state: State, max_role: str):
                 if state.board[col][row] == player:
                     for dx, dy in directions:
                         # Determine if we need to check in this direction
-                        if col + (dx * 2) < state.num_cols and row + (dy * 2) < state.num_rows and row + (dy * 2) >= 0:
+                        if col + (dx * 3) < state.num_cols and row + (dy * 3) < state.num_rows and row + (dy * 3) >= 0:
                             for length in range(3, 0, -1):  # Check for 3-in-a-row, 2-in-a-row, 1-in-a-row
-                                if all(0 <= col + dx * i < state.num_cols and
-                                       0 <= row + dy * i < state.num_rows and
-                                       # above 2 lines check for whether we are out of the border
-                                       state.board[col + dx * i][row + dy * i] == player for i in range(length)):
+                                if all(state.board[col + dx * i][row + dy * i] == player for i in range(length)):
                                        # above line check if the the rest checker in this direction is ours
                                     count += scores[length]
                                     break  
