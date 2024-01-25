@@ -209,7 +209,8 @@ def my_heuristic(state: State, max_role: str):
     #If the state is not terminal, give the heuristic evaluation
     # Define the scoring for different lengths of contiguous lines
     scores = {1: 0.05, 2: 0.35, 3: 0.99}
-    directions = [(0, 1), (1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]  
+    directions = [(0, 1), (1, 0), (1, 1), (1, -1)]  
+    # no need to add the rest directions, as they are just the opposite direction for which we checked.
 
     def count_lines(player):
         count = 0
@@ -222,9 +223,13 @@ def my_heuristic(state: State, max_role: str):
                             for length in range(3, 0, -1):  # Check for 3-in-a-row, 2-in-a-row, 1-in-a-row
                                 if all(0 <= col + dx * i < state.num_cols and
                                        0 <= row + dy * i < state.num_rows and
+                                       # above 2 lines check for whether we are out of the border
                                        state.board[col + dx * i][row + dy * i] == player for i in range(length)):
+                                       # above line check if the the rest checker in this direction is ours
                                     count += scores[length]
-                                    break  # Early termination if we found the longest line
+                                    break  
+                                    # Early termination if we found the longest line, so we will not eg: 
+                                    # add scores for 1-in-a-row, 2-in-a-row, 3-in-a-row in the same direction.
                                     
         return count
 
