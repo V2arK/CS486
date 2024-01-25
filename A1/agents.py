@@ -208,11 +208,8 @@ def my_heuristic(state: State, max_role: str):
         
     #If the state is not terminal, give the heuristic evaluation
     # Define the scoring for different lengths of contiguous lines
-    scores = {0:0, 1: 0.05, 2: 0.35, 3: 0.99}
-    empty_scores = {0:0, 1: 0.49, 2: 0.17, 3: 0.03}
-    
+    scores = {1: 0.05, 2: 0.35, 3: 0.99}
     directions = [(0, 1), (1, 0), (1, 1), (1, -1)]  
-    # no need to add the rest directions, as they are just the opposite direction for which we checked.
 
     def count_lines(player):
         count = 0
@@ -221,23 +218,12 @@ def my_heuristic(state: State, max_role: str):
                 if state.board[col][row] == player:
                     for dx, dy in directions:
                         # Determine if we need to check in this direction
-                        if col + (dx * 3) < state.num_cols and row + (dy * 3) < state.num_rows and row + (dy * 3) >= 0:
-                            for length in range(4, 0, -1):  # Check for 3-in-a-row, 2-in-a-row, 1-in-a-row
-                                for i in range(length):
-                                    checker_count = 0
-                                    empty_count = 0
+                        if col + (dx * 2) < state.num_cols and row + (dy * 2) < state.num_rows and row + (dy * 2) >= 0:
+                            for length in range(3, 0, -1):  # Check for 3-in-a-row, 2-in-a-row, 1-in-a-row
+                                if all(state.board[col + dx * i][row + dy * i] == player for i in range(length)):
+                                    count += scores[length]
+                                    break  # Early termination if we found the longest line
                                     
-                                    if state.board[col + dx * i][row + dy * i] == player:
-                                        checker_count += 1
-                                    elif state.board[col + dx * i][row + dy * i] == player:
-                                        empty_count += 1
-                                    else:
-                                        continue
-                                    
-                                    count += scores[checker_count]
-                                    count += empty_scores[empty_count]
-                                    break
-            
         return count
 
     max_material = count_lines(max_role)
@@ -366,7 +352,7 @@ if __name__ == "__main__":
     # This is the code that gets run when you run this file. You can set up games to be played here.
 
     #game = Game(HumanPlayer(), MinimaxPlayer(4, three_line_heur))
-    game = Game( MinimaxPlayer(4, three_line_heur),MinimaxPlayer(4, my_heuristic))
+    game = Game(RandomPlayer(),MinimaxPlayer(4, my_heuristic))
     # Here are some more examples of game initialization:
     # game = Game(MinimaxPlayer(4, three_line_heur), MinimaxPlayer(4, zero_heur))
     # game = Game(RandomPlayer(), FirstMovePlayer())
