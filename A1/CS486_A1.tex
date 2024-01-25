@@ -78,8 +78,18 @@ pdfauthor={Arne Storjohann}]{hyperref}
 	The first depth number i encountered for the game not terminating within 10 seconds is \texttt{depth=6}, which takes around \texttt{34s} on my Laptop.
 
 \part{c} 
+	
+	\texttt{my\_heuristic} evaluates the board state by calculating a score based on the number of contiguous lines (1-in-a-row, 2-in-a-row, and 3-in-a-row) for both the maximizing and minimizing players, and then assign exponentially (closely) increasing weights to these lines (0.05 for 1-in-a-row, 0.35 for 2-in-a-row, and 0.99 for 3-in-a-row) and return the score as the difference between the total scores of the two players.
+	
+	I believe \texttt{my\_heuristic} will outperform \texttt{three\_line\_heur} based on 3 advantages:
+	\begin{itemize}
+		\item It considers not just 3-in-a-row scenarios but also 1-in-a-row and 2-in-a-row, which is a better abstraction of the board's situation.
+		\item Reduced redundant checks by check if a possible 4-in-a-row will be outside the border of the game.
+		\item exponential weights for different line lengths create a balance between immediate threats and longer-term strategy, which might leads to smarter move choices by the algorithm.
+		
+	\end{itemize}
 
-\part{d}
+\part{d} Diagram:
 
 	\begin{tabular}{|c|c|c|c|c|}
 	\hline

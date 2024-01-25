@@ -208,9 +208,8 @@ def my_heuristic(state: State, max_role: str):
         
     #If the state is not terminal, give the heuristic evaluation
     # Define the scoring for different lengths of contiguous lines
-    scores = {1: 0.1, 2: 0.3, 3: 0.9}
-    directions = [(0, 1), (1, 0), (1, 1), (1, -1)]  
-    # Vertical, Horizontal, Diagonal Up, Diagonal Down
+    scores = {1: 0.05, 2: 0.35, 3: 0.99}
+    directions = [(0, 1), (1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]  
 
     def count_lines(player):
         count = 0
@@ -355,7 +354,7 @@ if __name__ == "__main__":
     # This is the code that gets run when you run this file. You can set up games to be played here.
 
     #game = Game(HumanPlayer(), MinimaxPlayer(4, three_line_heur))
-    game = Game(RandomPlayer(),MinimaxPlayer(2, my_heuristic))
+    game = Game(RandomPlayer(),MinimaxPlayer(4, my_heuristic))
     # Here are some more examples of game initialization:
     # game = Game(MinimaxPlayer(4, three_line_heur), MinimaxPlayer(4, zero_heur))
     # game = Game(RandomPlayer(), FirstMovePlayer())
