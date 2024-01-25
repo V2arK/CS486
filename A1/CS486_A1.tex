@@ -1,6 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage{algo,fullpage,url,amssymb,epsfig,color,xspace,tikz,amsmath}
 \usepackage{graphicx}
+\usepackage{makecell}
 \usepackage{float}
 \usepackage[pdftitle={CS 486 Assignment 1},
 pdfsubject={University of Waterloo, CS 486, Winter 2024},
@@ -69,11 +70,32 @@ pdfauthor={Arne Storjohann}]{hyperref}
 \newpage
 \subsection{} 
 \begin{enumerate}
-\part{a} 
 	
 \part{b} 
+	
+	The game always terminates in less than 10 seconds (around \texttt{0.04s} to \texttt{0.05s}) on my laptop for \texttt{RandomPlayer} vs. \texttt{MinimaxHeuristicPlayer} with depth \texttt{2}.
+	
+	The first depth number i encountered for the game not terminating within 10 seconds is \texttt{depth=6}, which takes around \texttt{34s} on my Laptop.
 
 \part{c} 
+
+\part{d}
+
+	\begin{tabular}{|c|c|c|c|c|}
+	\hline
+ 	Agent 1 & Agent 2 & Wins & Draws & Losses \\
+	\hline
+	\makecell{Minimax Player, depth 3 \\ three\_line\_heur} & RandomPlayer & & & \\
+	\hline
+	\makecell{Minimax Player, depth 3 \\ my\_heuristic} & RandomPlayer & & & \\
+	\hline
+	\makecell{Minimax Player, depth 5 \\ three\_line\_heur} & \makecell{Minimax Player, depth 2 \\ three\_line\_heur} & & & \\
+	\hline
+ 	\makecell{Minimax Player, depth 5 \\ my\_heuristic} & \makecell{Minimax Player, depth 2 \\ my\_heuristic} & & & \\
+	\hline
+	\makecell{Minimax Player, depth 5 \\ my\_heuristic} & \makecell{Minimax Player, depth 5 \\ three\_line\_heur} & & & \\
+	\hline
+	\end{tabular}
 
 \end{enumerate}
 

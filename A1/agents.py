@@ -196,7 +196,43 @@ def my_heuristic(state: State, max_role: str):
     :rtype: int
     """
     # Your code here!
-    return 0
+    
+    #If the state is terminal, give the true evaluation
+    if state.is_terminal:
+        if state.winner == '':
+            return 0
+        elif state.winner == max_role:
+            return 100
+        else:
+            return -100
+        
+    #If the state is not terminal, give the heuristic evaluation
+    # Define the scoring for different lengths of contiguous lines
+    scores = {1: 0.1, 2: 0.3, 3: 0.9}
+    directions = [(0, 1), (1, 0), (1, 1), (1, -1)]  
+    # Vertical, Horizontal, Diagonal Up, Diagonal Down
+
+    def count_lines(player):
+        count = 0
+        for col in range(state.num_cols):
+            for row in range(state.num_rows):
+                if state.board[col][row] == player:
+                    for dx, dy in directions:
+                        # Determine if we need to check in this direction
+                        if col + (dx * 2) < state.num_cols and row + (dy * 2) < state.num_rows and row + (dy * 2) >= 0:
+                            for length in range(3, 0, -1):  # Check for 3-in-a-row, 2-in-a-row, 1-in-a-row
+                                if all(0 <= col + dx * i < state.num_cols and
+                                       0 <= row + dy * i < state.num_rows and
+                                       state.board[col + dx * i][row + dy * i] == player for i in range(length)):
+                                    count += scores[length]
+                                    break  # Early termination if we found the longest line
+                                    
+        return count
+
+    max_material = count_lines(max_role)
+    min_material = count_lines('o' if max_role == 'x' else 'x')
+
+    return max_material - min_material
 
 
 
@@ -319,7 +355,7 @@ if __name__ == "__main__":
     # This is the code that gets run when you run this file. You can set up games to be played here.
 
     #game = Game(HumanPlayer(), MinimaxPlayer(4, three_line_heur))
-    game = Game(RandomPlayer(),MinimaxPlayer(2, three_line_heur))
+    game = Game(RandomPlayer(),MinimaxPlayer(2, my_heuristic))
     # Here are some more examples of game initialization:
     # game = Game(MinimaxPlayer(4, three_line_heur), MinimaxPlayer(4, zero_heur))
     # game = Game(RandomPlayer(), FirstMovePlayer())
