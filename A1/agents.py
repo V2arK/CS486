@@ -182,7 +182,7 @@ def zero_heur(state: State, max_role: str):
 
 
 
-def my_heuristic(state: State, max_role: str):
+def my_heuristic1(state: State, max_role: str):
     """
     Performs a heuristic evaluation of the given state.
     If the state is terminal, gives the true evaluation instead (100 if the maximizer has won,
@@ -208,7 +208,7 @@ def my_heuristic(state: State, max_role: str):
         
     #If the state is not terminal, give the heuristic evaluation
     # Define the scoring for different lengths of contiguous lines
-    scores = {1: 0.05, 2: 0.35, 3: 0.99}
+    scores = {1: 0.01, 2: 0.5, 3: 1.5}
     directions = [(0, 1), (1, 0), (1, 1), (1, -1)]  
 
     def count_lines(player):
@@ -231,6 +231,54 @@ def my_heuristic(state: State, max_role: str):
 
     return max_material - min_material
 
+def my_heuristic(state: State, max_role: str):
+    """
+    Performs a heuristic evaluation of the given state.
+    If the state is terminal, gives the true evaluation instead (100 if the maximizer has won,
+    0 for a draw, or -100 if the minimizer has won)
+
+    :param state: The state to evaluate
+    :type state: State
+    :param max_role: The role of the maximizing player
+    :type max_role: str (one of 'x' or 'o')
+    :return: The evaluation of the given state
+    :rtype: int
+    """
+    # Your code here!
+    
+    #If the state is terminal, give the true evaluation
+    if state.is_terminal:
+        if state.winner == '':
+            return 0
+        elif state.winner == max_role:
+            return 100
+        else:
+            return -100
+        
+    #If the state is not terminal, give the heuristic evaluation
+    
+    score_board = [
+        [1, 2, 3, 3, 2, 1],
+        [2, 4, 6, 6, 4, 2],
+        [3, 7, 10, 10, 7, 3],
+        [4, 8, 12, 12, 8, 4],
+        [3, 7, 10, 10, 7, 3],
+        [2, 4, 6, 6, 4, 2],
+        [1, 2, 3, 3, 2, 1],
+        ]
+    score = 0
+
+    # Calculate the score for each piece based on its distance from the center column
+    for col in range(state.num_cols):
+        for row in range(state.num_rows):
+            if state.board[col][row] == max_role:
+                # Assign higher score to pieces closer to the center
+                # The maximum score is given to the center column and decreases as it moves away from the center
+                score += score_board[col][row]
+            else:
+                score -= score_board[col][row]
+    
+    return score
 
 
 class MinimaxPlayer(Player):
