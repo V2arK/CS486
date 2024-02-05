@@ -208,7 +208,7 @@ def my_heuristic(state: State, max_role: str):
         
     #If the state is not terminal, give the heuristic evaluation
     # Define the scoring for different lengths of contiguous lines
-    scores = {0: 0, 1: 0.05, 2: 0.35, 3: 0.99}
+    scores = {1: 0.05, 2: 0.35, 3: 0.99}
     directions = [(0, 1), (1, 0), (1, 1), (1, -1)]  
 
     def count_lines(player):
@@ -218,22 +218,12 @@ def my_heuristic(state: State, max_role: str):
                 if state.board[col][row] == player:
                     for dx, dy in directions:
                         # Determine if we need to check in this direction
-                        if col + (dx * 3) < state.num_cols and row + (dy * 3) < state.num_rows and row + (dy * 3) >= 0:
-                            max_count = 0 # number of maxizing token
-                            empty_count = 0 # number of empty place
-                            for i in range(3, 0, -1):  # 4 place in the current direction
-                                if state.board[col + dx * i][row + dy * i] == player:
-                                    max_count += 1
-                                elif state.board[col + dx * i][row + dy * i] == ".":
-                                    empty_count += 1
-                                
-                            # calculate total score
-                            if max_count == 3 and empty_count == 1:
-                                count += 10
-                            elif max_count == 2 and empty_count == 2:
-                                count += 4
-                            #else:
-                                # count += scores[max_count]
+                        if col + (dx * 2) < state.num_cols and row + (dy * 2) < state.num_rows and row + (dy * 2) >= 0:
+                            for length in range(3, 0, -1):  # Check for 3-in-a-row, 2-in-a-row, 1-in-a-row
+                                if all(state.board[col + dx * i][row + dy * i] == player for i in range(length)):
+                                    count += scores[length]
+                                    break  # Early termination if we found the longest line
+                                    
         return count
 
     max_material = count_lines(max_role)
