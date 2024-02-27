@@ -285,7 +285,7 @@ def split_dataset(dataset, feature_to_split):
             #print(f"without_feature: doc_id = {doc_id}, features = {word_ids}")
             dataset_without_feature[doc_id] = word_ids
     
-    print(f"L size: {str(len(dataset_with_feature))}, R size:  {str(len(dataset_without_feature))}")
+    #print(f"L size: {str(len(dataset_with_feature))}, R size:  {str(len(dataset_without_feature))}")
     return dataset_with_feature, dataset_without_feature
 
 # Function to build the decision tree
@@ -308,8 +308,8 @@ def build_decision_tree(train_data, train_labels, method, subreddit_dict, max_no
         
         # We only counts the number of internal nodes with max_nodes
         max_nodes -= 1
-        print(f"\ndoing the {MAX_NODES - max_nodes}'th node")
-        print(f"info gained = {info_gained}, split word = {words[current_node.feature_to_split]}")
+        #print(f"\ndoing the {MAX_NODES - max_nodes}'th node")
+        #print(f"info gained = {info_gained}, split word = {words[current_node.feature_to_split]}")
         
         # Split the dataset based on the best feature
         current_node.splitted_feature.append(current_node.feature_to_split) # add splitted feature
@@ -412,6 +412,7 @@ def compute_accuracies_for_nodes(max_nodes):
     accuracy_test_tree2 = calculate_accuracy(tree2, test_data, test_labels)
     
     # Return a tuple of accuracies
+    print(f"Done max_node = {str(max_nodes)}.")
     return (max_nodes, accuracy_train_tree1, accuracy_test_tree1, accuracy_train_tree2, accuracy_test_tree2)
 
 
@@ -450,7 +451,7 @@ print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.5f}%\n")
 if __name__ == '__main__':
     
     # Number of processes to use
-    num_processes = 64 
+    num_processes = 125 # For school server  
 
     # Create a pool of processes
     with Pool(processes=num_processes) as pool:
