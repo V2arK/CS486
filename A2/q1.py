@@ -451,12 +451,12 @@ print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.5f}%\n")
 if __name__ == '__main__':
     
     # Number of processes to use
-    num_processes = 125 # For school server  
+    num_processes = 20 # For school server, laptop will explode with this 
 
     # Create a pool of processes
     with Pool(processes=num_processes) as pool:
         # Map the compute_accuracies_for_nodes function to each number of max_nodes
-        results = pool.map(compute_accuracies_for_nodes, range(1, 101))
+        results = pool.map(compute_accuracies_for_nodes, range(1, 21))
 
     # Now we will process the results to plot them
     # Initialize lists to hold accuracies for plotting
@@ -487,6 +487,9 @@ if __name__ == '__main__':
     plt.title('Training and Testing Accuracies (Method 1)')
     plt.legend()
 
+    # Save the figure for method 1
+    plt.savefig('method1_accuracies.png')
+
     # Plot for method 2
     plt.subplot(1, 2, 2)
     plt.plot(nodes, accuracy_train_method2, label='Training Accuracy (Method 2)')
@@ -496,5 +499,8 @@ if __name__ == '__main__':
     plt.title('Training and Testing Accuracies (Method 2)')
     plt.legend()
 
-    plt.tight_layout()
-    plt.show()
+    # Save the figure for method 2
+    plt.savefig('method2_accuracies.png')
+    
+    #plt.tight_layout()
+    #plt.show()
