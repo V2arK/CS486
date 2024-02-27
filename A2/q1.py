@@ -1,7 +1,7 @@
-import numpy as np
 from math import log2
 from queue import PriorityQueue
 import matplotlib.pyplot as plt
+from multiprocessing import Pool
 
 ##### Variables ######
 NUM_FEATURES = 0 # Define later
@@ -261,7 +261,7 @@ def find_best_to_split(dataset, label_dict, method, words=None, splitted_feature
         print(f"spliting feature = None, info gain = {best_info_gain}")
     '''
     
-    print(f"delta I = {delta_information_gain(dataset, label_dict, best_feature, method, True)}")
+    #print(f"delta I = {delta_information_gain(dataset, label_dict, best_feature, method, True)}")
     return best_feature, best_info_gain
 
 def split_dataset(dataset, feature_to_split):
@@ -390,17 +390,42 @@ def calculate_accuracy(tree, data, labels):
     accuracy = (correct_predictions / len(data)) * 100
     return accuracy
 
+
+##### CONCURRENCY #####
+
+# Function to build a tree and calculate accuracies for a given number of nodes
+def compute_accuracies_for_nodes(max_nodes):
+    words = read_word_data('./words.txt')
+    train_data = read_document_data('./trainData.txt')
+    train_labels = read_label_data('./trainLabel.txt')
+    test_data = read_document_data('./testData.txt')
+    test_labels = read_label_data('./testLabel.txt')
+
+    # Build trees using both methods
+    tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, max_nodes=max_nodes)
+    tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=max_nodes)
+    
+    # Calculate accuracies for both trees
+    accuracy_train_tree1 = calculate_accuracy(tree1, train_data, train_labels)
+    accuracy_test_tree1 = calculate_accuracy(tree1, test_data, test_labels)
+    accuracy_train_tree2 = calculate_accuracy(tree2, train_data, train_labels)
+    accuracy_test_tree2 = calculate_accuracy(tree2, test_data, test_labels)
+    
+    # Return a tuple of accuracies
+    return (max_nodes, accuracy_train_tree1, accuracy_test_tree1, accuracy_train_tree2, accuracy_test_tree2)
+
+
 ##### MAIN ######
 
 # Reading data from files
-words = read_word_data('./words.txt')
-train_data = read_document_data('./trainData.txt')
-train_labels = read_label_data('./trainLabel.txt')
-test_data = read_document_data('./testData.txt')
-test_labels = read_label_data('./testLabel.txt')
+#words = read_word_data('./words.txt')
+#train_data = read_document_data('./trainData.txt')
+#train_labels = read_label_data('./trainLabel.txt')
+#test_data = read_document_data('./testData.txt')
+#test_labels = read_label_data('./testLabel.txt')
 
 ##### b) #####
-
+'''
 print("--- building tree 1 ---\n")
 tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, max_nodes=10)
 print("\n--- method 1 tree ---\n")
@@ -418,5 +443,57 @@ accuracy_tree1 = calculate_accuracy(tree1, test_data, test_labels)
 accuracy_tree2 = calculate_accuracy(tree2, test_data, test_labels)
 
 # Print the accuracies
-print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.2f}%\n")
-print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.2f}%\n")
+print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.5f}%\n")
+print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.5f}%\n")
+'''
+
+if __name__ == '__main__':
+    
+    # Number of processes to use
+    num_processes = 64 
+
+    # Create a pool of processes
+    with Pool(processes=num_processes) as pool:
+        # Map the compute_accuracies_for_nodes function to each number of max_nodes
+        results = pool.map(compute_accuracies_for_nodes, range(1, 101))
+
+    # Now we will process the results to plot them
+    # Initialize lists to hold accuracies for plotting
+    nodes = []
+    accuracy_train_method1 = []
+    accuracy_test_method1 = []
+    accuracy_train_method2 = []
+    accuracy_test_method2 = []
+
+    # Populate the lists with data
+    for result in results:
+        nodes.append(result[0])
+        accuracy_train_method1.append(result[1])
+        accuracy_test_method1.append(result[2])
+        accuracy_train_method2.append(result[3])
+        accuracy_test_method2.append(result[4])
+
+
+    # Plotting the results
+    plt.figure(figsize=(14, 7))
+
+    # Plot for method 1
+    plt.subplot(1, 2, 1)
+    plt.plot(nodes, accuracy_train_method1, label='Training Accuracy (Method 1)')
+    plt.plot(nodes, accuracy_test_method1, label='Testing Accuracy (Method 1)')
+    plt.xlabel('Number of Nodes')
+    plt.ylabel('Accuracy (%)')
+    plt.title('Training and Testing Accuracies (Method 1)')
+    plt.legend()
+
+    # Plot for method 2
+    plt.subplot(1, 2, 2)
+    plt.plot(nodes, accuracy_train_method2, label='Training Accuracy (Method 2)')
+    plt.plot(nodes, accuracy_test_method2, label='Testing Accuracy (Method 2)')
+    plt.xlabel('Number of Nodes')
+    plt.ylabel('Accuracy (%)')
+    plt.title('Training and Testing Accuracies (Method 2)')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
