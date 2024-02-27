@@ -148,8 +148,9 @@ def delta_information_gain(elements, doc_subreddit_dict, word_to_split, method, 
     not_have_word_to_split = [key for key, value in elements.items() 
                               if word_to_split not in value]
     
-    if debug:
-        print(f"len has_word_to_split = {len(has_word_to_split)}, len not_have_word_to_split = {len(not_have_word_to_split)}")
+    #if debug:
+    #    print(f"len has_word_to_split = {len(has_word_to_split)}, len not_have_word_to_split = {len(not_have_word_to_split)}")
+    
     # note the values in the arrays are doc_id has or has not the word to split.
     atheism_count_E1 = 0
     books_count_E1 = 0
@@ -262,7 +263,8 @@ def find_best_to_split(dataset, label_dict, method, words=None, splitted_feature
     elif words is not None:
         print(f"spliting feature = None, info gain = {best_info_gain}")
     '''
-     
+    
+    print(f"delta I = {delta_information_gain(dataset, label_dict, best_feature, method, True)}")
     return best_feature, best_info_gain
 
 def split_dataset(dataset, feature_to_split):
@@ -286,7 +288,7 @@ def split_dataset(dataset, feature_to_split):
             #print(f"without_feature: doc_id = {doc_id}, features = {word_ids}")
             dataset_without_feature[doc_id] = word_ids
     
-    
+    print(f"L size: {str(len(dataset_with_feature))}, R size:  {str(len(dataset_without_feature))}")
     return dataset_with_feature, dataset_without_feature
 
 # Function to build the decision tree
@@ -309,7 +311,7 @@ def build_decision_tree(train_data, train_labels, method, subreddit_dict, max_no
         
         # We only counts the number of internal nodes with max_nodes
         max_nodes -= 1
-        print(f"doing the {MAX_NODES - max_nodes}'th node")
+        print(f"\ndoing the {MAX_NODES - max_nodes}'th node")
         print(f"info gained = {info_gained}, split word = {words[current_node.feature_to_split]}")
         
         # Split the dataset based on the best feature
@@ -362,6 +364,35 @@ def print_tree(node, depth=0, feature_names=None):
     print("-" * depth + "R (wo/ feature):")
     print_tree(node.right, depth + 1, feature_names)
     
+    
+##### TESTING ######
+
+# Use decision tree to predict the label for a single document
+def predict_label(node, document_word_array):
+    # If we have reached a leaf node, return its point estimate
+    if node.left is None and node.right is None:
+        return node.point_estimate
+    # If the document contains the word_id at the current node, go left
+    elif node.feature_to_split in document_word_array:
+        return predict_label(node.left, document_word_array)
+    # If the document does not contain the word_id, go right
+    else:
+        return predict_label(node.right, document_word_array)
+
+# Function to calculate the accuracy of the decision tree
+def calculate_accuracy(tree, data, labels):
+    correct_predictions = 0
+    # Iterate over all documents in the test data
+    for doc_id, document_word_array in data.items():
+        # Use the tree to predict the label for the current document
+        predicted_label = predict_label(tree, document_word_array)
+        # If the predicted label matches the actual label, increment the correct predictions count
+        if predicted_label == labels[doc_id]:
+            correct_predictions += 1
+    # Calculate the percentage of correctly classified samples
+    accuracy = (correct_predictions / len(data)) * 100
+    return accuracy
+
 ##### MAIN ######
 
 # Reading data from files
@@ -373,12 +404,22 @@ test_labels = read_label_data('./testLabel.txt')
 
 ##### b) #####
 
-print("--- building tree 1 ---\n")
-tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, max_nodes=10)
-print("\n--- method 1 tree ---\n")
-print_tree(tree1, feature_names=words)
+#print("--- building tree 1 ---\n")
+#tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, #max_nodes=10)
+#print("\n--- method 1 tree ---\n")
+#print_tree(tree1, feature_names=words)
 
 print("\n--- building tree 2 ---\n")
 tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=10)
 print("\n--- method 2 tree ---\n")
 print_tree(tree2, feature_names=words)
+
+##### C) #####
+
+# Validate the decision trees tree1 and tree2
+#accuracy_tree1 = calculate_accuracy(tree1, test_data, test_labels)
+accuracy_tree2 = calculate_accuracy(tree2, test_data, test_labels)
+
+# Print the accuracies
+#print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.2f}%\n")
+print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.2f}%\n")
