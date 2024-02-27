@@ -378,7 +378,7 @@ tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=t
 print("\n--- method 1 tree ---\n")
 print_tree(tree1, feature_names=words)
 
-#print("\n--- building tree 2 ---\n")
-#tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=10)
-#print("\n--- method 2 tree ---\n")
-#print_tree(tree2, feature_names=words)
+print("\n--- building tree 2 ---\n")
+tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=10)
+print("\n--- method 2 tree ---\n")
+print_tree(tree2, feature_names=words)
