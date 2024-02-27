@@ -1,15 +1,32 @@
-# Sample dictionary
-my_dict = {
-    1: [1, 2, 3],
-    2: [4, 5, 6],
-    3: [7, 8, 9, 2],
-    4: [10, 11, 12]
-}
+import queue
 
-# Specific value to look for
-specific_value = 2
+def print_priority_queue(pq):
+    temp_list = []
+    # Remove all items and add them to a temporary list
+    while not pq.empty():
+        item = pq.get()
+        print(item, end=' ')
+        temp_list.append(item)
+    
+    # Re-insert the items into the PriorityQueue
+    for item in temp_list:
+        pq.put(item)
 
-# Selecting keys whose arrays contain the specific value
-selected_keys = [key for key, value in my_dict.items() if specific_value in value]
+    print("\n")
 
-print(selected_keys)
+# Create a priority queue
+pq = queue.PriorityQueue()
+
+# Put some items in the queue. The first element of the tuple is the priority.
+pq.put((10, 'ten'))
+pq.put((1, 'one'))
+pq.put((5, 'five'))
+
+print_priority_queue(pq)
+
+# Pop an item from the queue.
+item = pq.get()
+
+print(f"Item popped from the queue: {item}\n")
+print_priority_queue(pq)
+# This will print: Item popped from the queue: (1, 'one')
