@@ -191,15 +191,12 @@ def delta_information_gain(elements, doc_subreddit_dict, word_to_split, method, 
         
         sum_E1 = atheism_count_E1 + books_count_E1
         sum_E2 = atheism_count_E2 + books_count_E2
+    
         # Corner case
         if sum_E1 == 0 and sum_E2 == 0:
             return IE
-        elif sum_E1 == 0:
-            return IE - ((atheism_count_E2) / sum_E2 * IE2)
-        elif sum_E2 == 0:
-            return IE - ((atheism_count_E1) / sum_E1 * IE1)
         
-        return IE - ((atheism_count_E1) / sum_E1 * IE1) - ((atheism_count_E2) / sum_E2 * IE2)
+        return IE - ((sum_E1 / (sum_E1 + sum_E2)) * IE1) - ((sum_E2 / (sum_E1 + sum_E2)) * IE2)
 
 
 ##### Decision Tree #####
@@ -404,10 +401,10 @@ test_labels = read_label_data('./testLabel.txt')
 
 ##### b) #####
 
-#print("--- building tree 1 ---\n")
-#tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, #max_nodes=10)
-#print("\n--- method 1 tree ---\n")
-#print_tree(tree1, feature_names=words)
+print("--- building tree 1 ---\n")
+tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, max_nodes=10)
+print("\n--- method 1 tree ---\n")
+print_tree(tree1, feature_names=words)
 
 print("\n--- building tree 2 ---\n")
 tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=10)
@@ -417,9 +414,9 @@ print_tree(tree2, feature_names=words)
 ##### C) #####
 
 # Validate the decision trees tree1 and tree2
-#accuracy_tree1 = calculate_accuracy(tree1, test_data, test_labels)
+accuracy_tree1 = calculate_accuracy(tree1, test_data, test_labels)
 accuracy_tree2 = calculate_accuracy(tree2, test_data, test_labels)
 
 # Print the accuracies
-#print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.2f}%\n")
+print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.2f}%\n")
 print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.2f}%\n")
