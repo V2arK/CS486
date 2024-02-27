@@ -1,0 +1,124 @@
+##### PREDICT ######
+
+# Function to predict the class for a given instance using the decision tree
+def predict(tree, instance):
+    for node in tree:
+        parent_index, feature, value, is_left, class_label = node
+        if parent_index is not None and instance[parent_index] != value:
+            continue
+        return class_label
+    return None
+
+# Function to calculate the accuracy of the decision tree
+def calculate_accuracy(data, labels, tree):
+    correct_predictions = sum(predict(tree, instance) == label for instance, label in zip(data, labels))
+    return correct_predictions / len(data) * 100
+
+
+# Function to build the decision tree using a priority queue
+def build_tree(train_data, train_labels, num_features, method):
+    #N = len(train_data)  # Total number of training instances
+    E = entropy(train_labels)  # Calculate entropy of the training set
+    queue = PriorityQueue()  # Initialize a priority queue
+    tree = []  # Initialize the tree as an empty list
+    # Put the initial node into the queue with the entire training set
+    queue.put((0, train_data, train_labels, list(range(num_features)), None, None, True))
+
+    # Continue building the tree until the queue is empty or we reach 100 nodes
+    while not queue.empty() and len(tree) < 100:
+        _, data, labels, features, parent_index, value, is_left = queue.get()
+        E = entropy(labels)  # Recalculate entropy for the current node
+        best_ig = -1  # Initialize the best information gain
+        best_feature = None  # Initialize the best feature to split on
+        best_splits = None  # Initialize the best splits
+
+        # Iterate over each feature to find the best feature to split on
+        for feature in features:
+            left_split = [labels[i] for i in range(len(data)) if data[i][feature] == '1']
+            right_split = [labels[i] for i in range(len(data)) if data[i][feature] == '0']
+            E1, E2 = entropy(left_split), entropy(right_split)
+            ig = information_gain(E, len(left_split), E1, len(right_split), E2, method)
+
+            # Update the best information gain and the corresponding feature and splits
+            if ig > best_ig:
+                best_ig = ig
+                best_feature = feature
+                best_splits = (left_split, right_split)
+
+        # If a valid feature was found, update the tree and queue with the new nodes
+        if best_feature is not None:
+            tree.append((parent_index, best_feature, value, is_left, majority_class(labels)))
+            features.remove(best_feature)
+            left_data = [d for i, d in enumerate(data) if d[best_feature] == '1']
+            right_data = [d for i, d in enumerate(data) if d[best_feature] == '0']
+            left_labels, right_labels = best_splits
+
+            # Add the left and right splits to the queue if they are not empty
+            if left_data:
+                queue.put((-best_ig, left_data, left_labels, features[:], len(tree) - 1, '1', True))
+            if right_data:
+                queue.put((-best_ig, right_data, right_labels, features[:], len(tree) - 1, '0', False))
+
+    return tree
+
+# Function to get the majority class from a list of class labels
+def majority_class(labels):
+    # Return the class label that appears most frequently
+    return max(set(labels), key=labels.count)
+
+
+'''
+# Initialize lists to keep track of accuracies
+train_accuracies1 = []
+test_accuracies1 = []
+
+train_accuracies2 = []
+test_accuracies2 = []
+
+# Build the tree and track the accuracy at each step
+for i in range(1, 101):
+    # Build tree with i nodes using the first method (average information gain)
+    tree1 = build_tree(train_data, train_labels, len(words), method=1)[:i]
+    tree2 = build_tree(train_data, train_labels, len(words), method=2)[:i]
+    # Calculate the accuracy on the training set
+    train_accuracy1 = calculate_accuracy(train_data, train_labels, tree1)
+    train_accuracy2 = calculate_accuracy(train_data, train_labels, tree2)
+    # Calculate the accuracy on the testing set
+    test_accuracy1 = calculate_accuracy(test_data, test_labels, tree1)
+    test_accuracy2 = calculate_accuracy(test_data, test_labels, tree2)
+    # Append the accuracies to their respective lists
+    train_accuracies1.append(train_accuracy1)
+    test_accuracies1.append(test_accuracy1)
+    
+    train_accuracies2.append(train_accuracy2)
+    test_accuracies2.append(test_accuracy2)
+
+# Plotting the accuracies using Matplotlib
+plt.figure(figsize=(10, 5))
+
+# Plot training accuracy
+plt.plot(range(1, 101), train_accuracies1, label='Training Accuracy 1', color='blue')
+
+# Plot testing accuracy
+plt.plot(range(1, 101), test_accuracies1, label='Testing Accuracy 1', color='red')
+
+# Plot training accuracy
+plt.plot(range(1, 101), train_accuracies2, label='Training Accuracy 2', color='blue')
+
+# Plot testing accuracy
+plt.plot(range(1, 101), test_accuracies2, label='Testing Accuracy 2', color='red')
+
+# Add titles and labels to the plot
+plt.title('Accuracy vs. Number of Nodes in Decision Tree')
+plt.xlabel('Number of Nodes')
+plt.ylabel('Accuracy (%)')
+
+# Show legend to differentiate between training and testing accuracies
+plt.legend()
+
+# Show grid for better readability of the plot
+plt.grid(True)
+
+# Display the plot
+plt.show()
+'''

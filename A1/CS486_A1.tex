@@ -10,7 +10,7 @@ pdfauthor={Arne Storjohann}]{hyperref}
 
 \usepackage{listings}
 \lstset{%
-        language=C++,
+        language=python,
         keepspaces=true,
         basicstyle=\small\ttfamily,
        commentstyle=\footnotesize\itshape{},
@@ -70,6 +70,49 @@ pdfauthor={Arne Storjohann}]{hyperref}
 \newpage
 \subsection{} 
 \begin{enumerate}
+
+\part{a} \texttt{minimax}:
+
+	\begin{lstlisting}
+	if depth == 0 or node.state.is_terminal:
+        # Base case: evaluate the state using the heuristic function
+        node.value = heuristic_fn(node.state, max_role)
+        return node.value
+    if node.state.turn == max_role:
+        # Maximizing player
+        max_eval = float('-inf')
+        for move in node.state.get_legal_moves():
+            # Create a successor node
+            successor_state = deepcopy(node.state)
+            successor_state.advance_state(move)
+            successor_node = MinimaxNode(successor_state)
+            # Recursively call minimax on the successor
+            eval = minimax(successor_node, depth - 1, max_role, heuristic_fn)
+            # max_eval is the maximum evaluation value for the player.
+            max_eval = max(max_eval, eval)
+            # Store successor node and its value
+            node.successors[move] = successor_node
+        # Assign the maximum value found to the current node
+        node.value = max_eval
+        return max_eval
+    else:
+        # Minimizing player
+        min_eval = float('inf')
+        for move in node.state.get_legal_moves():
+            # Create a successor node
+            successor_state = deepcopy(node.state)
+            successor_state.advance_state(move)
+            successor_node = MinimaxNode(successor_state)
+            # Recursively call minimax on the successor
+            eval = minimax(successor_node, depth - 1, max_role, heuristic_fn)
+            # min_eval is the minimum evaluation value for the player.
+            min_eval = min(min_eval, eval)
+            # Store successor node and its value
+            node.successors[move] = successor_node
+        # Assign the minimum value found to the current node
+        node.value = min_eval
+        return min_eval
+	\end{lstlisting}\
 	
 \part{b} 
 	
@@ -78,32 +121,60 @@ pdfauthor={Arne Storjohann}]{hyperref}
 	The first depth number i encountered for the game not terminating within 10 seconds is \texttt{depth=6}, which takes around \texttt{34s} on my Laptop.
 
 \part{c} 
-	
-	\texttt{my\_heuristic} evaluates the board state by calculating a score based on the number of contiguous lines (1-in-a-row, 2-in-a-row, and 3-in-a-row) for both the maximizing and minimizing players, and then assign exponentially (closely) increasing weights to these lines (0.05 for 1-in-a-row, 0.35 for 2-in-a-row, and 0.99 for 3-in-a-row) and return the score as the difference between the total scores of the two players.
-	
-	I believe \texttt{my\_heuristic} will outperform \texttt{three\_line\_heur} based on 3 advantages:
-	\begin{itemize}
-		\item It considers not just 3-in-a-row scenarios but also 1-in-a-row and 2-in-a-row, which is a better abstraction of the board's situation.
-		\item Reduced redundant checks by check if a possible 4-in-a-row will be outside the border of the game.
-		\item exponential weights for different line lengths create a balance between immediate threats and longer-term strategy, which might leads to smarter move choices by the algorithm.
-		
-	\end{itemize}
 
-\part{d} Diagram:
+	\texttt{my\_heuristic}:
+
+	\begin{lstlisting}
+	#If the state is terminal, give the true evaluation
+    if state.is_terminal:
+        if state.winner == '':
+            return 0
+        elif state.winner == max_role:
+            return 100
+        else:
+            return -100
+    #If the state is not terminal, give the heuristic evaluation
+    score_board = [
+        [1, 2, 3, 3, 2, 1],
+        [2, 4, 6, 6, 4, 2],
+        [3, 6, 9, 9, 6, 3],
+        [4, 8, 12, 12, 8, 4],
+        [3, 7, 10, 10, 7, 3],
+        [2, 4, 6, 6, 4, 2],
+        [1, 2, 3, 3, 2, 1],
+        ]
+    score = 0
+    # Calculate the score for each piece based on its distance from the center column
+    for col in range(state.num_cols):
+        for row in range(state.num_rows):
+            if state.board[col][row] == max_role:
+                # Assign higher score to pieces closer to the center
+                # The maximum score is given to the center column and decreases as it moves away from the center
+                score += score_board[col][row]
+            else:
+                score -= score_board[col][row]
+    return score
+	\end{lstlisting}\
+	
+	\texttt{my\_heuristic} evaluates the board state by calculating a score based on the pieces' location on the board. Each spot on the board is given a score, with higher scores for spots closer to the centre. In the end, it returns the score as the difference between the total scores of the two players.
+	
+	I believe \texttt{my\_heuristic} will outperform \texttt{three\_line\_heur} because  my heuristic function assign scores based on board positions, more precisely based on the pieces' distance from the centre of the board. The closer a piece is to the centre, the higher its score, as closer a piece is to the centre, higher the chance that it will contribute to a connect-4, or stop a connect-4 attempt for the opponent. And \texttt{three\_line\_heur} only based scores on number of 3-in-a-row, without considering how easy is that 3-in-a-row to become an actual connect-4.  
+		
+\part{d} Diagram (each run 20 games):
 
 	\begin{tabular}{|c|c|c|c|c|}
 	\hline
  	Agent 1 & Agent 2 & Wins & Draws & Losses \\
 	\hline
-	\makecell{Minimax Player, depth 3 \\ three\_line\_heur} & RandomPlayer & & & \\
+	\makecell{Minimax Player, depth 3 \\ three\_line\_heur} & RandomPlayer & 20 & 0 & 0 \\
 	\hline
-	\makecell{Minimax Player, depth 3 \\ my\_heuristic} & RandomPlayer & & & \\
+	\makecell{Minimax Player, depth 3 \\ my\_heuristic} & RandomPlayer & 20 & 0 & 0 \\
 	\hline
-	\makecell{Minimax Player, depth 5 \\ three\_line\_heur} & \makecell{Minimax Player, depth 2 \\ three\_line\_heur} & & & \\
+	\makecell{Minimax Player, depth 5 \\ three\_line\_heur} & \makecell{Minimax Player, depth 2 \\ three\_line\_heur} & 16 & 1 & 3 \\
 	\hline
- 	\makecell{Minimax Player, depth 5 \\ my\_heuristic} & \makecell{Minimax Player, depth 2 \\ my\_heuristic} & & & \\
+ 	\makecell{Minimax Player, depth 5 \\ my\_heuristic} & \makecell{Minimax Player, depth 2 \\ my\_heuristic} & 20 & 0 & 0 \\
 	\hline
-	\makecell{Minimax Player, depth 5 \\ my\_heuristic} & \makecell{Minimax Player, depth 5 \\ three\_line\_heur} & & & \\
+	\makecell{Minimax Player, depth 5 \\ my\_heuristic} & \makecell{Minimax Player, depth 5 \\ three\_line\_heur} & 15 & 0 & 5 \\
 	\hline
 	\end{tabular}
 

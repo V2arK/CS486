@@ -260,7 +260,7 @@ def my_heuristic(state: State, max_role: str):
     score_board = [
         [1, 2, 3, 3, 2, 1],
         [2, 4, 6, 6, 4, 2],
-        [3, 7, 10, 10, 7, 3],
+        [3, 6, 9, 9, 6, 3],
         [4, 8, 12, 12, 8, 4],
         [3, 7, 10, 10, 7, 3],
         [2, 4, 6, 6, 4, 2],
@@ -400,9 +400,43 @@ if __name__ == "__main__":
     # This is the code that gets run when you run this file. You can set up games to be played here.
 
     #game = Game(HumanPlayer(), MinimaxPlayer(4, three_line_heur))
-    game = Game(RandomPlayer(),MinimaxPlayer(4, my_heuristic))
+    #game = Game(RandomPlayer(),MinimaxPlayer(4, my_heuristic))
     # Here are some more examples of game initialization:
     # game = Game(MinimaxPlayer(4, three_line_heur), MinimaxPlayer(4, zero_heur))
     # game = Game(RandomPlayer(), FirstMovePlayer())
-    winner = game.play_game()
-    game.display()
+    #winner = game.play_game()
+    
+    
+    #game.display()
+    
+    # Define the number of rounds
+    num_rounds = 20
+
+    # Initialize counters for outcomes
+    wins = 0
+    losses = 0
+    draws = 0
+
+    # Main loop to play the games
+    for _ in range(num_rounds):
+        # Initialize players and the game
+        player1 = MinimaxPlayer(5, my_heuristic)
+        player2 = MinimaxPlayer(5, three_line_heur)
+        game = Game(player1, player2)
+        
+        # Play the game and get the result
+        winner = game.play_game()
+        
+        # Increment counters based on the outcome
+        if winner == 'x':
+            wins += 1
+        elif winner == 'o':
+            losses += 1
+        else:
+            draws += 1
+
+    # Print the results
+    print(f"Out of {num_rounds} games:")
+    print(f"Wins: {wins}")
+    print(f"Draws: {draws}")
+    print(f"Losses: {losses}")
