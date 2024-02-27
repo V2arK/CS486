@@ -8,6 +8,7 @@ NUM_FEATURES = 0 # Define later
 NUM_SAMPLE = 1500
 ATHEISM_ID = 1
 BOOKS_ID = 2
+LABEL_STR = {ATHEISM_ID: "Atheism", BOOKS_ID: "Books" }
 
 # We define P(x) as # belongs to atheism over total.
 
@@ -63,6 +64,33 @@ def entropy(x, y):
     #print(f"val = {val}")
     #print(f"log2(val) = {log2(val)}")
     return - log2(val)
+
+def information_content(dataset, doc_subreddit_dict):
+    # calculate the information content of the dataset
+    # dataset needs to be a dictionary
+    
+    atheism_count = 0
+    books_count = 0
+    
+    doc_ids = [key for key, _ in dataset.items()]
+    
+    # Loop over all elements and calculate # belongs to atheism or books respectively
+    for doc_id in doc_ids:
+        if doc_subreddit_dict[doc_id] == ATHEISM_ID:
+            atheism_count += 1
+        elif doc_subreddit_dict[doc_id] == BOOKS_ID:
+            books_count += 1
+            
+            
+    etp1 = entropy(atheism_count, books_count)
+    etp2 = entropy(books_count, atheism_count)
+    
+    # Corner case
+    if (atheism_count + books_count) == 0:
+        return 0
+        
+    return ((atheism_count) / (atheism_count + books_count) * etp1) + ((books_count) / (atheism_count + books_count) * etp2)
+
 
 '''
 def information_gain(num1, num2, method):
@@ -164,15 +192,10 @@ def delta_information_gain(elements, doc_subreddit_dict, word_to_split, method, 
         sum_E2 = atheism_count_E2 + books_count_E2
         # Corner case
         if sum_E1 == 0 and sum_E2 == 0:
-            print("case 0")
             return IE
         elif sum_E1 == 0:
-            if debug:
-                print("case 1")
             return IE - ((atheism_count_E2) / sum_E2 * IE2)
         elif sum_E2 == 0:
-            if debug:
-                print("case 2")
             return IE - ((atheism_count_E1) / sum_E1 * IE1)
         
         return IE - ((atheism_count_E1) / sum_E1 * IE1) - ((atheism_count_E2) / sum_E2 * IE2)
@@ -181,10 +204,11 @@ def delta_information_gain(elements, doc_subreddit_dict, word_to_split, method, 
 ##### Decision Tree #####
 
 class Node:
-    def __init__(self, dataset, point_estimate, feature_to_split=None, info_gain=0):
+    def __init__(self, dataset, point_estimate, feature_to_split=None, info_gain=0, splitted_feature=[]):
         self.dataset = dataset  # The subset 'E' of the dataset at this node
         self.feature_to_split = feature_to_split  # 'X_prime': The feature to split on at this node
-        self.point_estimate = point_estimate
+        self.point_estimate = point_estimate # Point estimation of current node.
+        self.splitted_feature = splitted_feature[:] # array of already splitted feature
         self.info_gain = info_gain  # 'delta_I': Information gain of the split
         self.left = None      # Left child (with feature)
         self.right = None     # Right child (without feature)
@@ -205,10 +229,10 @@ def calculate_point_estimate(dataset, label_dict):
         point_estimate = max(label_counts, key=label_counts.get)
         return point_estimate
     
-def find_best_to_split(dataset, label_dict, method, words=None):
+def find_best_to_split(dataset, label_dict, method, words=None, splitted_feature=[]):
     # Find the best feature to split next
     # by try to compute the delta_information_gain on all features 
-    # appeared in the dataset, and return a tuple containing
+    # appeared in the dataset but not the ones in splitted_feature, and return a tuple containing
     # the feature to split that will give the biggest delta_information_gain
     # and the delta_information_gain.
     best_feature = None
@@ -216,6 +240,11 @@ def find_best_to_split(dataset, label_dict, method, words=None):
 
     # Iterate through each feature in the dataset to find the best one to split on
     for feature in range(1, NUM_FEATURES + 1):
+        
+        # skips the feature we already split on
+        if feature in splitted_feature:
+            continue
+        
         # Compute the information gain for splitting on the current feature
         current_info_gain = delta_information_gain(dataset, label_dict, feature, method)
         
@@ -227,25 +256,31 @@ def find_best_to_split(dataset, label_dict, method, words=None):
             best_feature = feature
             best_info_gain = current_info_gain
 
+    '''
     if words is not None and best_feature is not None:
         print(f"spliting feature = {words[best_feature]}, info gain = {best_info_gain}")
     elif words is not None:
         print(f"spliting feature = None, info gain = {best_info_gain}")
-        
+    '''
+     
     return best_feature, best_info_gain
 
 def split_dataset(dataset, feature_to_split):
     # Datasets to hold the split
     dataset_with_feature = {}
     dataset_without_feature = {}
-    print(f"Splitting on {feature_to_split}")
+    #print(f"Splitting on {feature_to_split}")
     # Iterate over each entry in the dataset
     for doc_id, word_ids in dataset.items():
         # Check if the feature to split on is in the document's word IDs
         if feature_to_split in word_ids:
             # Add this document to the dataset with the feature
             #print(f"with_feature: doc_id = {doc_id}, features = {word_ids}")
-            dataset_with_feature[doc_id] = word_ids
+            dataset_with_feature[doc_id] = word_ids[:] # [:] to make a shallow copy
+            
+            #print(f"remove feature: {feature_to_split}")
+            # remove the spliting feature
+            #dataset_with_feature[doc_id].remove(feature_to_split)
         else:
             # Add this document to the dataset without the feature
             #print(f"without_feature: doc_id = {doc_id}, features = {word_ids}")
@@ -256,43 +291,59 @@ def split_dataset(dataset, feature_to_split):
 
 # Function to build the decision tree
 def build_decision_tree(train_data, train_labels, method, subreddit_dict, max_nodes=100, words=None):
+    MAX_NODES = max_nodes
     pq = PriorityQueue()
     root = Node(dataset=train_data, point_estimate=calculate_point_estimate(train_data, subreddit_dict))
-    pq.put((-1, root))  # We use -1 as the priority since PriorityQueue is min-based
+    
+    best_feature, best_info_gain = find_best_to_split(root.dataset, train_labels, method, words=words)
+    
+    # Update root node with split info
+    root.feature_to_split = best_feature
+    root.info_gain = best_info_gain
+    
+    pq.put((best_info_gain, root))
 
     while not pq.empty() and max_nodes > 0:
-        max_nodes -= 1
-        _, current_node = pq.get()
-        print(f"doing the {100 - max_nodes}'th node")
-    
-        # Determine the best feature to split on and the gain from that split
-        best_feature, best_info_gain = find_best_to_split(current_node.dataset, train_labels, method, words=words)
         
-        # If no good split is found, this is a leaf node
-        if best_feature is None:
-            continue
+        info_gained, current_node = pq.get()
+        
+        # We only counts the number of internal nodes with max_nodes
+        max_nodes -= 1
+        print(f"doing the {MAX_NODES - max_nodes}'th node")
+        print(f"info gained = {info_gained}, split word = {words[current_node.feature_to_split]}")
         
         # Split the dataset based on the best feature
-        left_dataset, right_dataset = split_dataset(current_node.dataset, best_feature)
-        left_node = Node(dataset=left_dataset, point_estimate=calculate_point_estimate(left_dataset, subreddit_dict))
-        right_node = Node(dataset=right_dataset, point_estimate=calculate_point_estimate(right_dataset, subreddit_dict))
+        current_node.splitted_feature.append(current_node.feature_to_split) # add splitted feature
+
+        #print(f"splitted feature list is  {current_node.splitted_feature}")
+        left_dataset, right_dataset = split_dataset(current_node.dataset, current_node.feature_to_split)
+        
+        best_feature_L, best_info_gain_L = find_best_to_split(left_dataset, train_labels, method, words=words, splitted_feature=current_node.splitted_feature)
+        best_feature_R, best_info_gain_R = find_best_to_split(right_dataset, train_labels, method, words=words, splitted_feature=current_node.splitted_feature)
+        
+        
+        left_node = Node(dataset=left_dataset, point_estimate=calculate_point_estimate(left_dataset, subreddit_dict), info_gain=best_info_gain_L, feature_to_split=best_feature_L, splitted_feature=current_node.splitted_feature)
+        right_node = Node(dataset=right_dataset, point_estimate=calculate_point_estimate(right_dataset, subreddit_dict), info_gain=best_info_gain_R, feature_to_split=best_feature_R, splitted_feature=current_node.splitted_feature)
         
         # Update current node with split info
-        current_node.feature_to_split = best_feature
-        current_node.info_gain = best_info_gain
         current_node.left = left_node
         current_node.right = right_node
         
         # Add child nodes to the priority queue
-        pq.put((best_info_gain, left_node))
-        pq.put((best_info_gain, right_node))
+        if best_feature_L is not None:
+            pq.put((best_info_gain_L, left_node))
+            #print(f"Adde L feature = {words[best_feature_L]}, info gain = {best_info_gain_L}")
+        if best_feature_R is not None:
+            pq.put((best_info_gain_R, right_node))
+            #print(f"Added R feature = {words[best_feature_R]}, info gain = {best_info_gain_R}")
+        
     
     return root
 
 def print_tree(node, depth=0, feature_names=None):
-    # Base case: if the node is a leaf, it will not have a feature to split on
-    if node.feature_to_split is None:
-        print(" " * depth + "Leaf, estimate: " + str(node.point_estimate))
+    # Base case: if the node is a leaf, it will not have a child
+    if node.left is None or node.right is None:
+        print("-" * depth + "Leaf, estimate: " + LABEL_STR[node.point_estimate])
         return
 
     # Recursive case: print the current node's split information
@@ -301,14 +352,14 @@ def print_tree(node, depth=0, feature_names=None):
     else:
         feature_name = str(node.feature_to_split)
 
-    print(" " * depth + f"Node: Split Feature = {feature_name}, Info Gain = {node.info_gain:.4f}")
+    print("-" * depth + f"Node: Split Feature = {feature_name}, Info Gain = {node.info_gain:.10f}")
 
     # Recursively print the left subtree
-    print(" " * depth + "L (w/ feature):")
+    print("-" * depth + "L (w/ feature):")
     print_tree(node.left, depth + 1, feature_names)
 
     # Recursively print the right subtree
-    print(" " * depth + "R (wo/ feature):")
+    print("-" * depth + "R (wo/ feature):")
     print_tree(node.right, depth + 1, feature_names)
     
 ##### MAIN ######
@@ -320,16 +371,14 @@ train_labels = read_label_data('./trainLabel.txt')
 test_data = read_document_data('./testData.txt')
 test_labels = read_label_data('./testLabel.txt')
 
-tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words)
-#tree2 = build_decision_tree(train_data, train_labels, 2)
+##### b) #####
 
+print("--- building tree 1 ---\n")
+tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, max_nodes=10)
+print("\n--- method 1 tree ---\n")
 print_tree(tree1, feature_names=words)
 
-'''
-# Print the structure of the first few entries of each dictionary for verification
-print("Train Data (first few entries):", list(train_data.items())[:5])
-print("Train Labels (first few entries):", list(train_labels.items())[:5])
-print("Test Data (first few entries):", list(test_data.items())[:5])
-print("Test Labels (first few entries):", list(test_labels.items())[:5])
-print("Words (first few entries):", list(words.items())[:5])
-'''
+#print("\n--- building tree 2 ---\n")
+#tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=10)
+#print("\n--- method 2 tree ---\n")
+#print_tree(tree2, feature_names=words)
