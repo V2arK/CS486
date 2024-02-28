@@ -467,14 +467,16 @@ if __name__ == '__main__':
     accuracy_test_method2 = []
 
     # Populate the lists with data
+    i = 1
     for result in results:
+        print(f"{str(i)} node, train_m1 = {result[1]}, test_m1 = {result[2]}, train_m2 = {result[3]}, test_m2 = {result[4]}")
         nodes.append(result[0])
         accuracy_train_method1.append(result[1])
         accuracy_test_method1.append(result[2])
         accuracy_train_method2.append(result[3])
         accuracy_test_method2.append(result[4])
 
-
+    
     # Plotting the results
     plt.figure(figsize=(14, 7))
 
