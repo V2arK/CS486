@@ -300,11 +300,11 @@ def build_decision_tree(train_data, train_labels, method, subreddit_dict, max_no
     root.feature_to_split = best_feature
     root.info_gain = best_info_gain
     
-    pq.put((best_info_gain, root))
+    pq.put(root)
 
     while not pq.empty() and max_nodes > 0:
         
-        info_gained, current_node = pq.get()
+        current_node = pq.get()
         
         # We only counts the number of internal nodes with max_nodes
         max_nodes -= 1
@@ -330,10 +330,10 @@ def build_decision_tree(train_data, train_labels, method, subreddit_dict, max_no
         
         # Add child nodes to the priority queue
         if best_feature_L is not None:
-            pq.put((best_info_gain_L, left_node))
+            pq.put(left_node)
             #print(f"Adde L feature = {words[best_feature_L]}, info gain = {best_info_gain_L}")
         if best_feature_R is not None:
-            pq.put((best_info_gain_R, right_node))
+            pq.put(right_node)
             #print(f"Added R feature = {words[best_feature_R]}, info gain = {best_info_gain_R}")
         
     
@@ -418,38 +418,39 @@ def compute_accuracies_for_nodes(max_nodes):
 
 ##### MAIN ######
 
-# Reading data from files
-#words = read_word_data('./words.txt')
-#train_data = read_document_data('./trainData.txt')
-#train_labels = read_label_data('./trainLabel.txt')
-#test_data = read_document_data('./testData.txt')
-#test_labels = read_label_data('./testLabel.txt')
-
-##### b) #####
-'''
-print("--- building tree 1 ---\n")
-tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, max_nodes=10)
-print("\n--- method 1 tree ---\n")
-print_tree(tree1, feature_names=words)
-
-print("\n--- building tree 2 ---\n")
-tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=10)
-print("\n--- method 2 tree ---\n")
-print_tree(tree2, feature_names=words)
-
-##### C) #####
-
-# Validate the decision trees tree1 and tree2
-accuracy_tree1 = calculate_accuracy(tree1, test_data, test_labels)
-accuracy_tree2 = calculate_accuracy(tree2, test_data, test_labels)
-
-# Print the accuracies
-print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.5f}%\n")
-print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.5f}%\n")
-'''
 
 if __name__ == '__main__':
     
+    # Reading data from files
+    words = read_word_data('./words.txt')
+    train_data = read_document_data('./trainData.txt')
+    train_labels = read_label_data('./trainLabel.txt')
+    test_data = read_document_data('./testData.txt')
+    test_labels = read_label_data('./testLabel.txt')
+
+    ##### b) #####
+
+    #print("--- building tree 1 ---\n")
+    #tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, #max_nodes=10)
+    #print("\n--- method 1 tree ---\n")
+    #print_tree(tree1, feature_names=words)
+
+    print("\n--- building tree 2 ---\n")
+    tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=10)
+    print("\n--- method 2 tree ---\n")
+    print_tree(tree2, feature_names=words)
+    
+    # Validate the decision trees tree1 and tree2
+    #accuracy_tree1 = calculate_accuracy(tree1, test_data, test_labels)
+    #accuracy_tree2 = calculate_accuracy(tree2, test_data, test_labels)
+
+    # Print the accuracies
+    #print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.5f}%\n")
+    #print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.5f}%\n")
+
+    ##### C) #####
+    
+    '''
     # Number of processes to use
     num_processes = 100 # For school server, laptop will explode with this 
 
@@ -505,3 +506,4 @@ if __name__ == '__main__':
     
     #plt.tight_layout()
     #plt.show()
+    '''
