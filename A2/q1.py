@@ -23,6 +23,7 @@ def read_label_data(file_name):
             label_data[lineNum] = int(line.strip())
             lineNum += 1
             # docId = line number
+    file.close()
     return label_data
 
 # Function to read word data, returning a dictionary mapping word ID to word
@@ -37,6 +38,7 @@ def read_word_data(file_name):
     # Define the Number of features
     global NUM_FEATURES
     NUM_FEATURES = lineNum
+    file.close()
     return word_data
 
 # Function to read train or test data
@@ -47,6 +49,7 @@ def read_document_data(file_name):
         for line in file:
             doc_id, word_id = line.strip().split()
             document_data[int(doc_id)].append(int(word_id))
+    file.close()
     return document_data
 
 ##### COMPUTING #####
@@ -430,10 +433,10 @@ if __name__ == '__main__':
 
     ##### b) #####
 
-    #print("--- building tree 1 ---\n")
-    #tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, #max_nodes=10)
-    #print("\n--- method 1 tree ---\n")
-    #print_tree(tree1, feature_names=words)
+    print("--- building tree 1 ---\n")
+    tree1 = build_decision_tree(train_data, train_labels, method=1, subreddit_dict=train_labels, words=words, max_nodes=10)
+    print("\n--- method 1 tree ---\n")
+    print_tree(tree1, feature_names=words)
 
     print("\n--- building tree 2 ---\n")
     tree2 = build_decision_tree(train_data, train_labels, method=2, subreddit_dict=train_labels, words=words, max_nodes=10)
@@ -441,12 +444,12 @@ if __name__ == '__main__':
     print_tree(tree2, feature_names=words)
     
     # Validate the decision trees tree1 and tree2
-    #accuracy_tree1 = calculate_accuracy(tree1, test_data, test_labels)
-    #accuracy_tree2 = calculate_accuracy(tree2, test_data, test_labels)
+    accuracy_tree1 = calculate_accuracy(tree1, test_data, test_labels)
+    accuracy_tree2 = calculate_accuracy(tree2, test_data, test_labels)
 
     # Print the accuracies
-    #print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.5f}%\n")
-    #print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.5f}%\n")
+    print(f"\nAccuracy of tree1 (Method 1): {accuracy_tree1:.5f}%\n")
+    print(f"\nAccuracy of tree2 (Method 2): {accuracy_tree2:.5f}%\n")
 
     ##### C) #####
     
