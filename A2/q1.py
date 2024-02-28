@@ -475,6 +475,7 @@ if __name__ == '__main__':
         accuracy_test_method1.append(result[2])
         accuracy_train_method2.append(result[3])
         accuracy_test_method2.append(result[4])
+        i += 1
 
     
     # Plotting the results
