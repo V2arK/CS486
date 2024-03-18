@@ -1,6 +1,7 @@
 from math import log2
 from queue import PriorityQueue
 import matplotlib.pyplot as plt
+import decimal
 
 DEBUG = True
 
@@ -19,10 +20,10 @@ LABEL_STR = {ATHEISM_ID: "Atheism", BOOKS_ID: "Books" }
 def read_label_data(file_name):
     label_data = {}
     with open(file_name, 'r') as file:
-        lineNum = 1
+        lineNum = 0
         for line in file:
-            label_data[lineNum] = int(line.strip())
             lineNum += 1
+            label_data[lineNum] = int(line.strip())
             # docId = line number
     file.close()
     return label_data
@@ -31,10 +32,10 @@ def read_label_data(file_name):
 def read_word_data(file_name):
     word_data = {}
     with open(file_name, 'r') as file:
-        lineNum = 1
+        lineNum = 0
         for line in file:
-            word_data[int(lineNum)] = line.strip()
             lineNum += 1
+            word_data[int(lineNum)] = line.strip()
             # wordId = line number
     # Define the Number of features
     global NUM_FEATURES
@@ -57,24 +58,37 @@ def read_document_data(file_name):
 
 # 0.5 as we are ML
 def predict_class(document, Theta_i_atheism, Theta_i_books, theta_atheism=0.5, theta_books=0.5):
-    # Start with the log of the priors to avoid underflow
-    log_prob_atheism = log2(theta_atheism)
-    log_prob_books = log2(theta_books)
+    # Start with the theta_c
+    prob_atheism = decimal.Decimal(theta_atheism)
+    prob_books = decimal.Decimal(theta_books)
     
-    # Add the log likelihood of each word in the document
-    for word_id in document:
-        if word_id in Theta_i_atheism:
-            log_prob_atheism += log2(Theta_i_atheism[word_id])
-        if word_id in Theta_i_books:
-            log_prob_books += log2(Theta_i_books[word_id])
+    # multiply all the likelihood
+    for word_id in range(1, NUM_FEATURES + 1):
+        if word_id in document:
+            prob_atheism *= decimal.Decimal(Theta_i_atheism[word_id])
+        else:
+            prob_atheism *= decimal.Decimal(1 - Theta_i_atheism[word_id])
+            
+        if word_id in document:
+            prob_books *= decimal.Decimal(Theta_i_books[word_id])
+        else:
+            prob_books *= decimal.Decimal(1 - Theta_i_books[word_id])
     
+    normalized_prob_atheism = decimal.Decimal(prob_atheism / decimal.Decimal(prob_atheism + prob_books))
+    #normalized_prob_books = prob_books / (prob_atheism + prob_books)
     # Return the class with the highest posterior probability
-    if log_prob_atheism > log_prob_books:
+    
+    if normalized_prob_atheism >= 0.5:
         return ATHEISM_ID
-    elif log_prob_atheism < log_prob_books:
+    else:
         return BOOKS_ID
-    else: # TIE
-        return ATHEISM_ID
+    
+    #if prob_atheism > prob_books:
+    #    return ATHEISM_ID
+    #elif prob_atheism < prob_books:
+    #    return BOOKS_ID
+    #else: # TIE
+    #    return ATHEISM_ID
 
 ##### MAIN ######
 
@@ -103,6 +117,7 @@ if __name__ == '__main__':
     theta_books = books_count / total_count
     
     if DEBUG:
+        print(f"Total number of works: {NUM_FEATURES}")
         print(f"Total number of documents: {total_count}")
         print(f"Number of documents labeled as 'Atheism': {atheism_count}")
         print(f"Number of documents labeled as 'Books': {books_count}")
@@ -149,6 +164,12 @@ if __name__ == '__main__':
     
     print("")
     
+    #if DEBUG:
+        #for i, j in Theta_i_atheism.items():
+        #    print(f"key = {i}, value = {j}")
+        #    if i > 100:
+        #        break
+        
     #### 10 most discriminative word features ####
     
     # Compute the log probabilities for each word
@@ -165,30 +186,45 @@ if __name__ == '__main__':
     print("10 Most Discriminative Word Features:")
     for word_id in most_discriminative:
         word = words[word_id]
-        print(f"Word: {word}, Difference in Log Probabilities: {log_prob_diffs[word_id]:.4f}")
+        if DEBUG:
+            print(f"Word: {word}, Difference in Log Probabilities: {log_prob_diffs[word_id]:.4f}")
+        else:
+            print(f"Word: {word}")
         
     print("")
     
     #### Predict the class for each document in the training set ####
-    predicted_labels = {}
+    predicted_labels_train = {}
     for doc_id, document in train_data.items():
-        predicted_labels[doc_id] = predict_class(document, Theta_i_atheism, Theta_i_books)
+        predicted_labels_train[doc_id] = predict_class(document, Theta_i_atheism, Theta_i_books)
 
     # Calculate the accuracy
-    correct_predictions = sum([predicted_labels[doc_id] == test_labels[doc_id] for doc_id in test_labels])
-    accuracy = correct_predictions / len(test_labels)
+    correct_predictions_train = 0
+    for doc_id, prediction in predicted_labels_train.items():
+        if train_labels[doc_id] == prediction:
+            correct_predictions_train += 1
+        #elif DEBUG:
+        #    print(f"Failed to predict doc_id = {doc_id}, should be {LABEL_STR[train_labels[doc_id]]}, but give {LABEL_STR[prediction]}")
+            
+    accuracy_train = correct_predictions_train / len(train_labels)
 
-    print(f'Training accuracy of the Naive Bayes classifier (): {accuracy * 100:.2f}%')
+    print(f'Training accuracy of the Naive Bayes classifier (): {accuracy_train * 100:.2f}%')
     
     #### Predict the class for each document in the test set ####
-    predicted_labels = {}
+    predicted_labels_test = {}
     for doc_id, document in test_data.items():
-        predicted_labels[doc_id] = predict_class(document, Theta_i_atheism, Theta_i_books)
+        predicted_labels_test[doc_id] = predict_class(document, Theta_i_atheism, Theta_i_books)
 
     # Calculate the accuracy
-    correct_predictions = sum([predicted_labels[doc_id] == test_labels[doc_id] for doc_id in test_labels])
-    accuracy = correct_predictions / len(test_labels)
+    correct_predictions_test = 0
+    for doc_id, prediction in predicted_labels_test.items():
+        if train_labels[doc_id] == prediction:
+            correct_predictions_test += 1
+        #elif DEBUG:
+        #    print(f"Failed to predict doc_id = {doc_id}, should be {LABEL_STR[train_labels[doc_id]]}, but give {LABEL_STR[prediction]}")
+            
+    accuracy_test = correct_predictions_test / len(test_labels)
 
-    print(f'Testing accuracy of the Naive Bayes classifier (): {accuracy * 100:.2f}%')
+    print(f'Testing accuracy of the Naive Bayes classifier (): {accuracy_test * 100:.2f}%')
     
     print("")
