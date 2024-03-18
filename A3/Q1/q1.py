@@ -2,6 +2,8 @@ from math import log2
 from queue import PriorityQueue
 import matplotlib.pyplot as plt
 
+DEBUG = True
+
 ##### Variables ######
 NUM_FEATURES = 0 # Define later
 NUM_SAMPLE = 1500
@@ -50,9 +52,6 @@ def read_document_data(file_name):
             document_data[int(doc_id)].append(int(word_id))
     file.close()
     return document_data
-
-##### COMPUTING #####
-
     
 ##### TESTING ######
 
@@ -72,11 +71,12 @@ def predict_class(document, Theta_i_atheism, Theta_i_books, theta_atheism=0.5, t
     # Return the class with the highest posterior probability
     if log_prob_atheism > log_prob_books:
         return ATHEISM_ID
-    else:
+    elif log_prob_atheism < log_prob_books:
         return BOOKS_ID
+    else: # TIE
+        return ATHEISM_ID
 
 ##### MAIN ######
-
 
 if __name__ == '__main__':
     
@@ -102,6 +102,13 @@ if __name__ == '__main__':
     theta_atheism = atheism_count / total_count
     theta_books = books_count / total_count
     
+    if DEBUG:
+        print(f"Total number of documents: {total_count}")
+        print(f"Number of documents labeled as 'Atheism': {atheism_count}")
+        print(f"Number of documents labeled as 'Books': {books_count}")
+        print(f"Prior probability of 'Atheism' class: {theta_atheism:.4f}")
+        print(f"Prior probability of 'Books' class: {theta_books:.4f}")
+    
     #### Split train data for each label ####
     atheism_train_data = {}
     books_train_data = {}
@@ -118,14 +125,14 @@ if __name__ == '__main__':
     atheism_word_counts = {i: 0 for i in range(1, NUM_FEATURES + 1)} 
     for i in range(1, NUM_FEATURES + 1):
         # count the occurance of word_id = i
-        for doc_id, word_ids in atheism_train_data.items():
+        for _, word_ids in atheism_train_data.items():
             if i in word_ids:
                 atheism_word_counts[i] += 1
 
     books_word_counts = {i: 0 for i in range(1, NUM_FEATURES + 1)} 
     for i in range(1, NUM_FEATURES + 1):
         # count the occurance of word_id = i
-        for doc_id, word_ids in books_train_data.items():
+        for _, word_ids in books_train_data.items():
             if i in word_ids:
                 books_word_counts[i] += 1
                 
