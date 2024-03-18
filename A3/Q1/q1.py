@@ -1,7 +1,6 @@
 from math import log2
 from queue import PriorityQueue
 import matplotlib.pyplot as plt
-from multiprocessing import Pool
 
 ##### Variables ######
 NUM_FEATURES = 0 # Define later
@@ -54,134 +53,27 @@ def read_document_data(file_name):
 
 ##### COMPUTING #####
 
-##### Decision Tree #####
-
-class Node:
-    def __init__(self, dataset, point_estimate, feature_to_split=None, info_gain=0, splitted_feature=[]):
-        self.dataset = dataset  # The subset 'E' of the dataset at this node
-        self.feature_to_split = feature_to_split  # 'X_prime': The feature to split on at this node
-        self.point_estimate = point_estimate # Point estimation of current node.
-        self.splitted_feature = splitted_feature[:] # array of already splitted feature
-        self.info_gain = info_gain  # 'delta_I': Information gain of the split
-        self.left = None      # Left child (with feature)
-        self.right = None     # Right child (without feature)
-
-    # This is needed for the PriorityQueue to compare Nodes based on information gain
-    def __lt__(self, other):
-         # since priority queue is a min_heap, so we define lt as gt
-        return self.info_gain > other.info_gain
-    
-def find_best_to_split(dataset, label_dict, method, words=None, splitted_feature=[]):
-    # Find the best feature to split next
-    # by try to compute the delta_information_gain on all features 
-    # appeared in the dataset but not the ones in splitted_feature, and return a tuple containing
-    # the feature to split that will give the biggest delta_information_gain
-    # and the delta_information_gain.
-    best_feature = None
-    best_info_gain = 0  # Start with 0 to ensure any gain is better, but not no split
-
-    # Iterate through each feature in the dataset to find the best one to split on
-    for feature in range(1, NUM_FEATURES + 1):
-        
-        # skips the feature we already split on
-        if feature in splitted_feature:
-            continue
-        
-        # Compute the information gain for splitting on the current feature
-        current_info_gain = delta_information_gain(dataset, label_dict, feature, method)
-        
-        # If the information gain of the current feature is better than the best one so far, update the best feature and gain
-        if current_info_gain > best_info_gain:
-            #print(f"better word = {words[feature]}, info gain = {current_info_gain} ")
-            #print(f"delta I = {delta_information_gain(dataset, label_dict, feature, method, True)}")
-            #print("------------")
-            best_feature = feature
-            best_info_gain = current_info_gain
-
-    '''
-    if words is not None and best_feature is not None:
-        print(f"spliting feature = {words[best_feature]}, info gain = {best_info_gain}")
-    elif words is not None:
-        print(f"spliting feature = None, info gain = {best_info_gain}")
-    '''
-    
-    #print(f"delta I = {delta_information_gain(dataset, label_dict, best_feature, method, True)}")
-    return best_feature, best_info_gain
-
-def split_dataset(dataset, feature_to_split):
-    # Datasets to hold the split
-    dataset_with_feature = {}
-    dataset_without_feature = {}
-    #print(f"Splitting on {feature_to_split}")
-    # Iterate over each entry in the dataset
-    for doc_id, word_ids in dataset.items():
-        # Check if the feature to split on is in the document's word IDs
-        if feature_to_split in word_ids:
-            # Add this document to the dataset with the feature
-            #print(f"with_feature: doc_id = {doc_id}, features = {word_ids}")
-            dataset_with_feature[doc_id] = word_ids[:] # [:] to make a shallow copy
-            
-            #print(f"remove feature: {feature_to_split}")
-            # remove the spliting feature
-            #dataset_with_feature[doc_id].remove(feature_to_split)
-        else:
-            # Add this document to the dataset without the feature
-            #print(f"without_feature: doc_id = {doc_id}, features = {word_ids}")
-            dataset_without_feature[doc_id] = word_ids
-    
-    #print(f"L size: {str(len(dataset_with_feature))}, R size:  {str(len(dataset_without_feature))}")
-    return dataset_with_feature, dataset_without_feature
-
-def print_tree(node, depth=0, feature_names=None):
-    # Base case: if the node is a leaf, it will not have a child
-    if node.left is None or node.right is None:
-        print("-" * depth + "Leaf, estimate: " + LABEL_STR[node.point_estimate])
-        return
-
-    # Recursive case: print the current node's split information
-    if feature_names and node.feature_to_split in feature_names:
-        feature_name = feature_names[node.feature_to_split]
-    else:
-        feature_name = str(node.feature_to_split)
-
-    print("-" * depth + f"Node: Split Feature = {feature_name}, Info Gain = {node.info_gain:.10f}")
-
-    # Recursively print the left subtree
-    print("-" * depth + "L (w/ feature):")
-    print_tree(node.left, depth + 1, feature_names)
-
-    # Recursively print the right subtree
-    print("-" * depth + "R (wo/ feature):")
-    print_tree(node.right, depth + 1, feature_names)
-    
     
 ##### TESTING ######
 
-# Use decision tree to predict the label for a single document
-def predict_label(node, document_word_array):
-    # If we have reached a leaf node, return its point estimate
-    if node.left is None and node.right is None:
-        return node.point_estimate
-    # If the document contains the word_id at the current node, go left
-    elif node.feature_to_split in document_word_array:
-        return predict_label(node.left, document_word_array)
-    # If the document does not contain the word_id, go right
+# 0.5 as we are ML
+def predict_class(document, Theta_i_atheism, Theta_i_books, theta_atheism=0.5, theta_books=0.5):
+    # Start with the log of the priors to avoid underflow
+    log_prob_atheism = log2(theta_atheism)
+    log_prob_books = log2(theta_books)
+    
+    # Add the log likelihood of each word in the document
+    for word_id in document:
+        if word_id in Theta_i_atheism:
+            log_prob_atheism += log2(Theta_i_atheism[word_id])
+        if word_id in Theta_i_books:
+            log_prob_books += log2(Theta_i_books[word_id])
+    
+    # Return the class with the highest posterior probability
+    if log_prob_atheism > log_prob_books:
+        return ATHEISM_ID
     else:
-        return predict_label(node.right, document_word_array)
-
-# Function to calculate the accuracy of the decision tree
-def calculate_accuracy(tree, data, labels):
-    correct_predictions = 0
-    # Iterate over all documents in the test data
-    for doc_id, document_word_array in data.items():
-        # Use the tree to predict the label for the current document
-        predicted_label = predict_label(tree, document_word_array)
-        # If the predicted label matches the actual label, increment the correct predictions count
-        if predicted_label == labels[doc_id]:
-            correct_predictions += 1
-    # Calculate the percentage of correctly classified samples
-    accuracy = (correct_predictions / len(data)) * 100
-    return accuracy
+        return BOOKS_ID
 
 ##### MAIN ######
 
@@ -195,8 +87,101 @@ if __name__ == '__main__':
     test_data = read_document_data('./dataset/testData.txt')
     test_labels = read_label_data('./dataset/testLabel.txt')
     
-    # First calculate relative frequency of books belong to subreddit 'Atheism' or 'Books'
-    
-    
-    
+    #### First calculate relative frequency of books belong to subreddit 'Atheism' or 'Books' ####
+    total_count = 0
+    atheism_count = 0
+    books_count = 0
 
+    for _, label in train_labels.items():
+        total_count += 1
+        if label == ATHEISM_ID:
+            atheism_count += 1
+        elif label == BOOKS_ID:
+            books_count += 1
+    
+    theta_atheism = atheism_count / total_count
+    theta_books = books_count / total_count
+    
+    #### Split train data for each label ####
+    atheism_train_data = {}
+    books_train_data = {}
+    
+    # Split the train_data based on the labels
+    for doc_id, label in train_labels.items():
+        if label == ATHEISM_ID:
+            atheism_train_data[doc_id] = train_data[doc_id]
+        elif label == BOOKS_ID:
+            books_train_data[doc_id] = train_data[doc_id]
+            
+    #### calculate number of document (value) that have feature word_id (key) ####
+    
+    atheism_word_counts = {i: 0 for i in range(1, NUM_FEATURES + 1)} 
+    for i in range(1, NUM_FEATURES + 1):
+        # count the occurance of word_id = i
+        for doc_id, word_ids in atheism_train_data.items():
+            if i in word_ids:
+                atheism_word_counts[i] += 1
+
+    books_word_counts = {i: 0 for i in range(1, NUM_FEATURES + 1)} 
+    for i in range(1, NUM_FEATURES + 1):
+        # count the occurance of word_id = i
+        for doc_id, word_ids in books_train_data.items():
+            if i in word_ids:
+                books_word_counts[i] += 1
+                
+    #### Account for Laplace correction when calculating the actual theta_i_1/0 ####
+    
+    Theta_i_atheism = {i: 0 for i in range(1, NUM_FEATURES + 1)}
+    Theta_i_books = {i: 0 for i in range(1, NUM_FEATURES + 1)}
+    
+    for i in range(1, NUM_FEATURES + 1):
+        Theta_i_atheism[i] = (atheism_word_counts[i] + 1) / (atheism_count + 2)
+        Theta_i_books[i] = (books_word_counts[i] + 1) / (books_count + 2)
+        
+    ######################## PROCESSING FINISHED ########################
+    
+    print("")
+    
+    #### 10 most discriminative word features ####
+    
+    # Compute the log probabilities for each word
+    log_prob_diffs = {}
+    for word_id in range(1, NUM_FEATURES + 1):
+        log_prob_atheism = log2(Theta_i_atheism[word_id])
+        log_prob_books = log2(Theta_i_books[word_id])
+        log_prob_diffs[word_id] = abs(log_prob_atheism - log_prob_books)
+
+    # Sort the words by the most discriminative features
+    most_discriminative = sorted(log_prob_diffs, key=log_prob_diffs.get, reverse=True)[:10]
+
+    # Print the 10 most discriminative words
+    print("10 Most Discriminative Word Features:")
+    for word_id in most_discriminative:
+        word = words[word_id]
+        print(f"Word: {word}, Difference in Log Probabilities: {log_prob_diffs[word_id]:.4f}")
+        
+    print("")
+    
+    #### Predict the class for each document in the training set ####
+    predicted_labels = {}
+    for doc_id, document in train_data.items():
+        predicted_labels[doc_id] = predict_class(document, Theta_i_atheism, Theta_i_books)
+
+    # Calculate the accuracy
+    correct_predictions = sum([predicted_labels[doc_id] == test_labels[doc_id] for doc_id in test_labels])
+    accuracy = correct_predictions / len(test_labels)
+
+    print(f'Training accuracy of the Naive Bayes classifier (): {accuracy * 100:.2f}%')
+    
+    #### Predict the class for each document in the test set ####
+    predicted_labels = {}
+    for doc_id, document in test_data.items():
+        predicted_labels[doc_id] = predict_class(document, Theta_i_atheism, Theta_i_books)
+
+    # Calculate the accuracy
+    correct_predictions = sum([predicted_labels[doc_id] == test_labels[doc_id] for doc_id in test_labels])
+    accuracy = correct_predictions / len(test_labels)
+
+    print(f'Testing accuracy of the Naive Bayes classifier (): {accuracy * 100:.2f}%')
+    
+    print("")
