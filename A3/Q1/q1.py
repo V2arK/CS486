@@ -3,7 +3,7 @@ from queue import PriorityQueue
 import matplotlib.pyplot as plt
 import decimal
 
-DEBUG = True
+DEBUG = False
 
 ##### Variables ######
 NUM_FEATURES = 0 # Define later
@@ -75,20 +75,11 @@ def predict_class(document, Theta_i_atheism, Theta_i_books, theta_atheism=0.5, t
             prob_books *= decimal.Decimal(1 - Theta_i_books[word_id])
     
     normalized_prob_atheism = decimal.Decimal(prob_atheism / decimal.Decimal(prob_atheism + prob_books))
-    #normalized_prob_books = prob_books / (prob_atheism + prob_books)
     # Return the class with the highest posterior probability
-    
     if normalized_prob_atheism >= 0.5:
         return ATHEISM_ID
     else:
         return BOOKS_ID
-    
-    #if prob_atheism > prob_books:
-    #    return ATHEISM_ID
-    #elif prob_atheism < prob_books:
-    #    return BOOKS_ID
-    #else: # TIE
-    #    return ATHEISM_ID
 
 ##### MAIN ######
 
@@ -163,12 +154,6 @@ if __name__ == '__main__':
     ######################## PROCESSING FINISHED ########################
     
     print("")
-    
-    #if DEBUG:
-        #for i, j in Theta_i_atheism.items():
-        #    print(f"key = {i}, value = {j}")
-        #    if i > 100:
-        #        break
         
     #### 10 most discriminative word features ####
     
@@ -203,8 +188,6 @@ if __name__ == '__main__':
     for doc_id, prediction in predicted_labels_train.items():
         if train_labels[doc_id] == prediction:
             correct_predictions_train += 1
-        #elif DEBUG:
-        #    print(f"Failed to predict doc_id = {doc_id}, should be {LABEL_STR[train_labels[doc_id]]}, but give {LABEL_STR[prediction]}")
             
     accuracy_train = correct_predictions_train / len(train_labels)
 
@@ -220,11 +203,10 @@ if __name__ == '__main__':
     for doc_id, prediction in predicted_labels_test.items():
         if train_labels[doc_id] == prediction:
             correct_predictions_test += 1
-        #elif DEBUG:
-        #    print(f"Failed to predict doc_id = {doc_id}, should be {LABEL_STR[train_labels[doc_id]]}, but give {LABEL_STR[prediction]}")
             
     accuracy_test = correct_predictions_test / len(test_labels)
 
     print(f'Testing accuracy of the Naive Bayes classifier (): {accuracy_test * 100:.2f}%')
     
     print("")
+    
