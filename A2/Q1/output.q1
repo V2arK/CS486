@@ -1,0 +1,179 @@
+--- building tree 1 ---
+
+
+doing the 1'th node
+info gained = 0.5002058812081454, split word = christian
+L size: 35, R size:  1465
+
+doing the 2'th node
+info gained = 0.5001930379077578, split word = atheism
+L size: 24, R size:  1441
+
+doing the 3'th node
+info gained = 0.4998761311331796, split word = christians
+L size: 19, R size:  1422
+
+doing the 4'th node
+info gained = 0.4995539340278007, split word = beliefs
+L size: 19, R size:  1403
+
+doing the 5'th node
+info gained = 0.49876616865890055, split word = atheists
+L size: 12, R size:  1391
+
+doing the 6'th node
+info gained = 0.4982474613834379, split word = brain
+L size: 10, R size:  1381
+
+doing the 7'th node
+info gained = 0.4976745554887391, split word = aa
+L size: 7, R size:  1374
+
+doing the 8'th node
+info gained = 0.49734487550604267, split word = murder
+L size: 7, R size:  1367
+
+doing the 9'th node
+info gained = 0.4969295610415432, split word = proof
+L size: 6, R size:  1361
+
+doing the 10'th node
+info gained = 0.49660083443000047, split word = logic
+L size: 6, R size:  1355
+
+--- method 1 tree ---
+
+Node: Split Feature = christian, Info Gain = 0.5002058812
+L (w/ feature):
+-Leaf, estimate: Atheism
+R (wo/ feature):
+-Node: Split Feature = atheism, Info Gain = 0.5001930379
+-L (w/ feature):
+--Leaf, estimate: Atheism
+-R (wo/ feature):
+--Node: Split Feature = christians, Info Gain = 0.4998761311
+--L (w/ feature):
+---Leaf, estimate: Atheism
+--R (wo/ feature):
+---Node: Split Feature = beliefs, Info Gain = 0.4995539340
+---L (w/ feature):
+----Leaf, estimate: Atheism
+---R (wo/ feature):
+----Node: Split Feature = atheists, Info Gain = 0.4987661687
+----L (w/ feature):
+-----Leaf, estimate: Atheism
+----R (wo/ feature):
+-----Node: Split Feature = brain, Info Gain = 0.4982474614
+-----L (w/ feature):
+------Leaf, estimate: Atheism
+-----R (wo/ feature):
+------Node: Split Feature = aa, Info Gain = 0.4976745555
+------L (w/ feature):
+-------Leaf, estimate: Atheism
+------R (wo/ feature):
+-------Node: Split Feature = murder, Info Gain = 0.4973448755
+-------L (w/ feature):
+--------Leaf, estimate: Atheism
+-------R (wo/ feature):
+--------Node: Split Feature = proof, Info Gain = 0.4969295610
+--------L (w/ feature):
+---------Leaf, estimate: Atheism
+--------R (wo/ feature):
+---------Node: Split Feature = logic, Info Gain = 0.4966008344
+---------L (w/ feature):
+----------Leaf, estimate: Atheism
+---------R (wo/ feature):
+----------Leaf, estimate: Books
+
+--- building tree 2 ---
+
+
+doing the 1'th node
+info gained = 0.07701870448051018, split word = book
+L size: 155, R size:  1345
+
+doing the 2'th node
+info gained = 0.059926184812467365, split word = books
+L size: 83, R size:  1262
+
+doing the 3'th node
+info gained = 0.03567340704855948, split word = religion
+L size: 65, R size:  1197
+
+doing the 4'th node
+info gained = 0.029390906237789283, split word = god
+L size: 65, R size:  1132
+
+doing the 5'th node
+info gained = 0.02421852942716285, split word = read
+L size: 51, R size:  1081
+
+doing the 6'th node
+info gained = 0.01961935102872636, split word = christian
+L size: 25, R size:  1056
+
+doing the 7'th node
+info gained = 0.016804377490273636, split word = religious
+L size: 27, R size:  1029
+
+doing the 8'th node
+info gained = 0.01665985599311559, split word = atheism
+L size: 19, R size:  1010
+
+doing the 9'th node
+info gained = 0.015287299537007915, split word = library
+L size: 14, R size:  996
+
+doing the 10'th node
+info gained = 0.014692038495530357, split word = snowden
+L size: 13, R size:  983
+
+--- method 2 tree ---
+
+Node: Split Feature = book, Info Gain = 0.0770187045
+L (w/ feature):
+-Leaf, estimate: Books
+R (wo/ feature):
+-Node: Split Feature = books, Info Gain = 0.0599261848
+-L (w/ feature):
+--Leaf, estimate: Books
+-R (wo/ feature):
+--Node: Split Feature = religion, Info Gain = 0.0356734070
+--L (w/ feature):
+---Leaf, estimate: Atheism
+--R (wo/ feature):
+---Node: Split Feature = god, Info Gain = 0.0293909062
+---L (w/ feature):
+----Leaf, estimate: Atheism
+---R (wo/ feature):
+----Node: Split Feature = read, Info Gain = 0.0242185294
+----L (w/ feature):
+-----Leaf, estimate: Books
+----R (wo/ feature):
+-----Node: Split Feature = christian, Info Gain = 0.0196193510
+-----L (w/ feature):
+------Leaf, estimate: Atheism
+-----R (wo/ feature):
+------Node: Split Feature = religious, Info Gain = 0.0168043775
+------L (w/ feature):
+-------Leaf, estimate: Atheism
+------R (wo/ feature):
+-------Node: Split Feature = atheism, Info Gain = 0.0166598560
+-------L (w/ feature):
+--------Leaf, estimate: Atheism
+-------R (wo/ feature):
+--------Node: Split Feature = library, Info Gain = 0.0152872995
+--------L (w/ feature):
+---------Leaf, estimate: Books
+--------R (wo/ feature):
+---------Node: Split Feature = snowden, Info Gain = 0.0146920385
+---------L (w/ feature):
+----------Leaf, estimate: Books
+---------R (wo/ feature):
+----------Leaf, estimate: Atheism
+
+Accuracy of tree1 (Method 1): 55.06667%
+
+
+Accuracy of tree2 (Method 2): 66.73333%
+
