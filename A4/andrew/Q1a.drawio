@@ -1,0 +1,52 @@
+<mxfile host="app.diagrams.net" modified="2024-04-03T04:10:45.907Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0" etag="qbTWssQ7K7I3-KKXhdXW" version="24.2.1" type="device">
+  <diagram name="第 1 页" id="y1b7-o_kj0ZNZbOfWxoh">
+    <mxGraphModel dx="1467" dy="984" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1200" pageHeight="1600" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-9" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;snapToPoint=0;fixDash=0;strokeWidth=3;jumpStyle=none;" edge="1" parent="1" source="SUj5WSKdGBjGSz2c6Ds9-1" target="SUj5WSKdGBjGSz2c6Ds9-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-10" style="edgeStyle=none;rounded=0;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;strokeWidth=3;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" edge="1" parent="1" source="SUj5WSKdGBjGSz2c6Ds9-1" target="SUj5WSKdGBjGSz2c6Ds9-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-11" style="edgeStyle=none;rounded=0;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0;entryDx=0;entryDy=0;strokeColor=default;strokeWidth=3;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" edge="1" parent="1" source="SUj5WSKdGBjGSz2c6Ds9-1" target="SUj5WSKdGBjGSz2c6Ds9-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-1" value="&lt;span style=&quot;font-size: 9px;&quot;&gt;Dunetts Syndrome (DS)&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontSize=9;rounded=1;labelBackgroundColor=none;snapToPoint=0;fixDash=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="330" width="130" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-2" value="&lt;span style=&quot;font-size: 9px;&quot;&gt;Sloepnea (S)&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontSize=9;rounded=1;labelBackgroundColor=none;snapToPoint=0;fixDash=0;" vertex="1" parent="1">
+          <mxGeometry x="330" y="550" width="130" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-3" value="&lt;span style=&quot;font-size: 9px;&quot;&gt;Foriennditis (F)&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontSize=9;rounded=1;labelBackgroundColor=none;snapToPoint=0;fixDash=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="550" width="130" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-12" style="edgeStyle=none;rounded=0;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=default;strokeWidth=3;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" edge="1" parent="1" source="SUj5WSKdGBjGSz2c6Ds9-4" target="SUj5WSKdGBjGSz2c6Ds9-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-4" value="&lt;span style=&quot;font-size: 9px;&quot;&gt;TRIMONOHT/S gene (TG)&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontSize=9;rounded=1;labelBackgroundColor=none;snapToPoint=0;fixDash=0;" vertex="1" parent="1">
+          <mxGeometry x="290" y="320" width="130" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-5" value="&lt;span style=&quot;font-size: 9px;&quot;&gt;Degar spots (D)&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontSize=9;rounded=1;labelBackgroundColor=none;snapToPoint=0;fixDash=0;" vertex="1" parent="1">
+          <mxGeometry x="970" y="550" width="130" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-62" value="P(DS = None) = 0.5&lt;div&gt;P(DS = Mild) = 0.25&lt;/div&gt;&lt;div&gt;P(DS = Severe) = 0.25&lt;/div&gt;" style="html=1;shadow=0;dashed=0;shape=mxgraph.bootstrap.rrect;rSize=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="830" y="330" width="190" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-67" value="P(TG = Present) = 0.1&lt;br&gt;&lt;div&gt;P(TG = Not Present) = 0.9&lt;/div&gt;" style="html=1;shadow=0;dashed=0;shape=mxgraph.bootstrap.rrect;rSize=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="70" y="350" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-68" value="P(S = True | DS = None, TG = Present) = 0.02&lt;div&gt;&lt;div&gt;P(S = True | DS = None, TG = Not Present) = 0.05&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;P(S = True | DS = Mild, TG = Present) = 0.1&lt;div&gt;P(S = True | DS = Mild, TG = Not Present) = 0.65&lt;/div&gt;&lt;/div&gt;&lt;div&gt;P(S = True | DS = Severe, TG = Present) = 0.2&lt;div&gt;P(S = True | DS = Severe, TG = Not Present) = 0.8&lt;/div&gt;&lt;/div&gt;" style="html=1;shadow=0;dashed=0;shape=mxgraph.bootstrap.rrect;rSize=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="210" y="690" width="380" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-69" value="P(F = True | DS = None) = 0.1&lt;div&gt;P(F = True | DS = Mild) = 0.6&lt;br&gt;&lt;/div&gt;&lt;div&gt;P(F = True | DS = Severe) = 0.3&lt;/div&gt;" style="html=1;shadow=0;dashed=0;shape=mxgraph.bootstrap.rrect;rSize=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="620" y="700" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="SUj5WSKdGBjGSz2c6Ds9-70" value="P(D = True | DS = None) = 0.1&lt;div&gt;P(D = True | DS = Mild) = 0.3&lt;br&gt;&lt;/div&gt;&lt;div&gt;P(D = True | DS = Severe) = 0.6&lt;/div&gt;" style="html=1;shadow=0;dashed=0;shape=mxgraph.bootstrap.rrect;rSize=5;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="910" y="700" width="250" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
